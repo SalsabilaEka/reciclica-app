@@ -7,14 +7,18 @@ import { IonicModule } from '@ionic/angular';
 import { PickupCallsPageRoutingModule } from './pickup-calls-routing.module';
 
 import { PickupCallsPage } from './pickup-calls.page';
+import { SharedModule } from 'src/app/shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    PickupCallsPageRoutingModule
+    PickupCallsPageRoutingModule,
+    SharedModule
   ],
-  declarations: [PickupCallsPage]
+  declarations: [
+    PickupCallsPage
+  ]
 })
 export class PickupCallsPageModule {}
