@@ -11,8 +11,10 @@ import { loginReducer } from 'src/store/login/login.reducers';
 import { AppState } from 'src/store/AppState';
 import { recoverPassword, recoverPasswordFail, recoverPasswordSuccess } from 'src/store/login/login.actions';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { of, throwError } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { User } from 'src/app/model/user/User';
+import { AngularFireModule } from '@angular/fire/compat';
+import { environment } from 'src/environments/environment.prod';
 
 
 describe('LoginPage', () => {
@@ -33,7 +35,8 @@ describe('LoginPage', () => {
         ReactiveFormsModule,
         StoreModule.forRoot([]),
         StoreModule.forFeature("loading", loadingReducer),
-        StoreModule.forFeature("login", loginReducer)
+        StoreModule.forFeature("login", loginReducer),
+        AngularFireModule.initializeApp(environment.firebaseConfig)
       ]
     }).compileComponents();
 
@@ -62,19 +65,16 @@ describe('LoginPage', () => {
   })
 
   it('should recover email/password on forgot email/password', () => {
+    spyOn(authServices, 'recoverEmailPassword').and.returnValue(new Observable(() => {}));
+
     fixture.detectChanges();
     component.form.get('email')?.setValue("valid@email.com");
     page.querySelector("#recoverPasswordButton").click();
     store.select('login').subscribe(loginState => {
       expect(loginState.isRecoveringPassword).toBeTruthy();
     })
-  })
-
-  it('should show loading when recovering password', () => {
-    fixture.detectChanges();
-    store.dispatch(recoverPassword());  // Dispatch recoverPassword action
     store.select('loading').subscribe(loadingState => {
-      expect(loadingState.show).toBeTruthy();  // Ensure loading state is true
+      expect(loadingState.show).toBeTruthy();
     })
   })
 
@@ -105,6 +105,8 @@ describe('LoginPage', () => {
   })
 
   it('should show loading and start login where logging in', () => {
+    spyOn(authServices, 'login').and.returnValue(new Observable(() => {}));
+
     fixture.detectChanges();
     component.form.get('email')?.setValue('valid@email.com');
     component.form.get('password')?.setValue('anyPassword');

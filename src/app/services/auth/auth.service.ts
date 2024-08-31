@@ -1,40 +1,44 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/model/user/User';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  constructor() { }
+  constructor(private auth: AngularFireAuth) { }
 
-  recoverEmailPassword(email: string) : Observable<void> {
+  recoverEmailPassword(email: string): Observable<void> {
     return new Observable<void>(observer => {
-      setTimeout(() => {
-        if (email == "error@email.com") {
-          observer.error({message: "Email not found"});
-        }
+      this.auth.sendPasswordResetEmail(email).then(() => {
         observer.next();
         observer.complete();
-      }, 3000);
+      }).catch((error: any) => {
+        observer.error(error);
+        observer.complete();
+      })
     })
   }
 
-  login(email: string, password: string) : Observable<User> {
+  login(email: string, password: string): Observable<User> {
     return new Observable<User>(observer => {
-      setTimeout(() => {
-        if (email == "error@email.com") {
-          observer.error({message: 'User not found'});
-          observer.next();
+      this.auth.setPersistence('local').then(() => {
+        return this.auth.signInWithEmailAndPassword(email, password);
+      }).then((userCredential) => {
+        const user = userCredential.user;
+        if (user) {
+          observer.next({ email, id: user.uid });
+          observer.complete();
         } else {
-          const user = new User();
-          user.email = email;
-          user.id = "userId";
-          observer.next(user);
+          observer.error('User is null');
+          observer.complete();
         }
+      }).catch(error => {
+        observer.error(error);
         observer.complete();
-      }, 3000)
-    })
+      });
+    });
   }
 }
