@@ -16,7 +16,7 @@ export class LoadingComponent  implements OnInit {
   constructor(private store: Store<AppState>) { }
 
   ngOnInit() {
-    this.loadingState$ = this.store.select(state => state.loading);
+    this.loadingState$ = this.store.select('loading');
   }
 
 }
